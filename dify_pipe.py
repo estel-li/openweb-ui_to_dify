@@ -133,6 +133,57 @@ class Pipe:
             {"id": self.valves.DIFY_MODLE_ID, "name": self.valves.DIFY_WORKFLOW},
         ]
 
+
+    def upload_file(self, user_id: str, file_path: str, mime_type: str) -> str:
+        """
+        上传文件到DIFY服务器
+        
+        Args:
+            user_id: 用户ID
+            file_path: 文件路径
+            mime_type: 文件MIME类型
+            
+        Returns:
+            str: 上传成功后返回的文件ID
+            
+        Raises:
+            FileNotFoundError: 文件不存在
+            requests.exceptions.RequestException: API请求失败
+            ValueError: 服务器响应格式无效
+        """
+        try:
+            url = f"{self.valves.DIFY_BASE_URL}/files/upload"
+            headers = {
+                "Authorization": f"Bearer {self.valves.DIFY_KEY}",
+            }
+
+            file_name = os.path.basename(file_path)
+            
+            # 使用 with 语句确保文件正确关闭
+            with open(file_path, "rb") as file:
+                files = {
+                    "file": (file_name, file, mime_type),
+                    "user": (None, user_id),
+                }
+                response = requests.post(url, headers=headers, files=files, timeout=(5, 30))
+                response.raise_for_status()  # 检查响应状态
+                
+                result = response.json()
+                if "id" not in result:
+                    raise ValueError(f"服务器响应格式无效: {result}")
+                    
+                return result["id"]
+            
+        except FileNotFoundError:
+            logging.error(f"文件未找到: {file_path}")
+            raise
+        except requests.exceptions.RequestException as e:
+            logging.error(f"上传文件失败: {str(e)}")
+            raise
+        except Exception as e:
+            logging.error(f"处理文件时发生错误: {str(e)}")
+            raise
+
     def upload_images(self, image_data_base64: str, user_id: str) -> str:
         """
         上传 base64 编码的图片到 DIFY 服务器，返回图片路径
@@ -158,6 +209,8 @@ class Pipe:
             return file_id
         except Exception as e:
             raise ValueError(f"Failed to process base64 image data: {str(e)}")
+        
+
 
     def pipes(self) -> List[dict]:
         return self.get_models()
@@ -228,12 +281,12 @@ class Pipe:
         # 获取最后一条消息作为query
         message = messages[-1]
         query = ""
+        file_list = []
         # Dify APIs设置可选接入参数model与system_message.
         inputs = {
             "model": model_name,
-            "system_message": system_message["content"] if system_message["content"] else ""  # 添加system_message
+            "system_message": system_message.get("content", "") if system_message else ""  # 更安全的访问方式
         }
-
         # 处理消息内容
         if isinstance(message.get("content"), list):
             for item in message["content"]:
@@ -247,12 +300,12 @@ class Pipe:
                         "url": "",
                         "upload_file_id": upload_file_id
                     }
+                    print("-----------------4------------------")
                     file_list.append(upload_file_dict)
         else:
             query = message.get("content", "")
-
+        print(f"file_list:{file_list}")
         # 处理文件上传，如需上传多个文件这里改为轮询     
-        file_list = []
         with open('data/dify/dify_file_data.json', 'r', encoding='utf-8') as f:
             file_info = json.load(f)
         if DEBUG_MODE:
@@ -467,4 +520,3 @@ class Pipe:
         except Exception as e:
             logging.error(f"处理文件失败: {str(e)}")
             raise
-        
