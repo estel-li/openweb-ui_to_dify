@@ -55,6 +55,7 @@ class Pipe:
         self.data_cache_dir = "data/dify"
         self.load_state()
         self.valves = self.Valves()
+                
 
     def save_state(self):
         """
@@ -304,7 +305,7 @@ class Pipe:
                     file_list.append(upload_file_dict)
         else:
             query = message.get("content", "")
-        print(f"file_list:{file_list}")
+
         # 处理文件上传，如需上传多个文件这里改为轮询     
         with open('data/dify/dify_file_data.json', 'r', encoding='utf-8') as f:
             file_info = json.load(f)
@@ -317,11 +318,10 @@ class Pipe:
             url = f"{self.valves.DIFY_BASE_URL}/files/upload"
             try:
                 file_name = file_info['name']
-                file_id = file_info['id']
                 file_extension = get_file_extension(file_name).upper()
                 # 根据DifyAPI文件扩展名确定文件类型
                 file_type = "custom"  # 默认类型
-                if file_extension in ['TXT', 'MD', 'MARKDOWN', 'PDF', 'HTML', 'XLSX', 'XLS', 'DOCX', 'CSV', 'EML', 'MSG', 'PPTX', 'PPT', 'XML', 'EPUB']:
+                if file_extension in ['TXT', 'MD', 'MARKDOWN', 'PDF', 'HTML', 'XLSX', 'XLS','DOC','DOCX', 'CSV', 'EML', 'MSG', 'PPTX', 'PPT', 'XML', 'EPUB']:
                     file_type = "document"
                 elif file_extension in ['JPG', 'JPEG', 'PNG', 'GIF', 'WEBP', 'SVG']:
                     file_type = "image"
@@ -329,21 +329,15 @@ class Pipe:
                     file_type = "audio"
                 elif file_extension in ['MP4', 'MOV', 'MPEG', 'MPGA']:
                     file_type = "video"
-                file_DyfiRE = self._get_file_dify_server(file_info["user_id"],f"{file_info['id']}_{file_info['name']}",)
-                '''
-                dify APIs 返回数据格式
-                {'id': 'd75dc617-4374-4e41-84c3-0769837a9ef9', 
-                    'name': '88bc9a10-a932-4afe-b306-f3528cf0af6f_1.docx', 
-                    'size': 91770, 
-                    'extension': 'docx', 
-                    'mime_type': 'application/octet-stream', 
-                    'created_by': '269dc320-4a41-4490-b0df-bf9fcea9aed0', 
-                    'created_at': 1736174930}               
-                '''
+                file_DYFI_FILE_ID = self._get_file_dify_server(file_info["user_id"],f"{file_info['id']}_{file_info['name']}",)
+                #file_path_url=f"{file_info['id']}_{file_info['name']}"
+                #file_DYFI_FILE_ID=self.upload_file(file_id,f"data/uploads/{file_path_url}",file_type)
+                print(f"------------------file_DYFI_FILE_ID=:{file_DYFI_FILE_ID}")
+
                 file_list.append({
                     "type": file_type,
                     "transfer_method": "local_file",
-                    "upload_file_id": file_DyfiRE["id"]
+                    "upload_file_id": file_DYFI_FILE_ID["id"]
                 })                
                 print(f"成功添加文件: {file_name}, 类型: {file_type}")
             except Exception as e:
@@ -460,7 +454,6 @@ class Pipe:
         except requests.exceptions.RequestException as e:
             print(f"Failed non-stream request: {e}")
             return f"Error: {e}"
-        
 
     def _get_file_dify_server(self, User_id: str, file_name: str) -> str:   
         #从本地uploads目录读取文件并以multipart/form-data格式上传到DIFY服务器       
@@ -519,4 +512,5 @@ class Pipe:
             raise
         except Exception as e:
             logging.error(f"处理文件失败: {str(e)}")
-            raise
+            raise           
+  

@@ -38,13 +38,6 @@ class Filter:
             print(f"inlet:user:{__user__}")        
         if body.get('model') != "difyapitest.dify_id":
             return body
-        try:
-            with open('data/dify/dify_file_data.json', 'r', encoding='utf-8') as f:
-                dify_file = json.load(f)
-                if not dify_file:
-                    return body
-        except Exception as e:
-            print(f"读取文件时出错或文件为空: {str(e)}")
         if "files" not in body:
             return body
         
@@ -63,13 +56,13 @@ class Filter:
                 print(f"跳过大文件: {file_info['name']}, 大小: {file_size/1024/1024:.2f}MB")
                 continue
             dify_file = {
-                "content": file_info['file']['data']['content'],  
+                # "content": file_info['file']['data']['content'],  
                 "name": file_info['name'],
                 "id": file_info['id'],
                 "user_id": file_info['file']['user_id'],
                 "content_type": file_info["file"]['meta']['content_type'],
                 "size": file_info['file']['meta']['size'],
-                "collection_name": file_info['collection_name'],
+                #"collection_name": file_info['collection_name'],
                 "url": file_info['url'],
                 "flag":True,
             }
