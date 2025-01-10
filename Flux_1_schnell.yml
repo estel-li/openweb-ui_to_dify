@@ -1,0 +1,247 @@
+app:
+  description: ''
+  icon: 🤖
+  icon_background: '#FFEAD5'
+  mode: workflow
+  name: openwen_ui_flux_schnell
+  use_icon_as_answer_icon: false
+kind: app
+version: 0.1.5
+workflow:
+  conversation_variables: []
+  environment_variables: []
+  features:
+    file_upload:
+      allowed_file_extensions:
+      - .JPG
+      - .JPEG
+      - .PNG
+      - .GIF
+      - .WEBP
+      - .SVG
+      allowed_file_types:
+      - image
+      allowed_file_upload_methods:
+      - local_file
+      - remote_url
+      enabled: false
+      fileUploadConfig:
+        audio_file_size_limit: 50
+        batch_count_limit: 5
+        file_size_limit: 15
+        image_file_size_limit: 10
+        video_file_size_limit: 100
+        workflow_file_upload_limit: 10
+      image:
+        enabled: false
+        number_limits: 3
+        transfer_methods:
+        - local_file
+        - remote_url
+      number_limits: 3
+    opening_statement: ''
+    retriever_resource:
+      enabled: true
+    sensitive_word_avoidance:
+      enabled: false
+    speech_to_text:
+      enabled: false
+    suggested_questions: []
+    suggested_questions_after_answer:
+      enabled: false
+    text_to_speech:
+      enabled: false
+      language: ''
+      voice: ''
+  graph:
+    edges:
+    - data:
+        isInIteration: false
+        sourceType: start
+        targetType: llm
+      id: 1736483335549-source-1736487342182-target
+      source: '1736483335549'
+      sourceHandle: source
+      target: '1736487342182'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        sourceType: llm
+        targetType: tool
+      id: 1736487342182-source-1736492437563-target
+      source: '1736487342182'
+      sourceHandle: source
+      target: '1736492437563'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    - data:
+        isInIteration: false
+        sourceType: tool
+        targetType: end
+      id: 1736492437563-source-1736487330657-target
+      source: '1736492437563'
+      sourceHandle: source
+      target: '1736487330657'
+      targetHandle: target
+      type: custom
+      zIndex: 0
+    nodes:
+    - data:
+        desc: ''
+        selected: false
+        title: 开始
+        type: start
+        variables:
+        - label: model
+          max_length: 256
+          options: []
+          required: false
+          type: text-input
+          variable: model
+        - label: prompt
+          max_length: 8096
+          options: []
+          required: false
+          type: paragraph
+          variable: prompt
+      height: 114
+      id: '1736483335549'
+      position:
+        x: 80
+        y: 282
+      positionAbsolute:
+        x: 80
+        y: 282
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 243
+    - data:
+        desc: ''
+        outputs:
+        - value_selector:
+          - '1736492437563'
+          - files
+          variable: output_img
+        - value_selector:
+          - '1736487342182'
+          - text
+          variable: test
+        selected: true
+        title: 结束
+        type: end
+      height: 114
+      id: '1736487330657'
+      position:
+        x: 951.7475985405952
+        y: 316.8860475255322
+      positionAbsolute:
+        x: 951.7475985405952
+        y: 316.8860475255322
+      selected: true
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 243
+    - data:
+        context:
+          enabled: false
+          variable_selector: []
+        desc: ''
+        model:
+          completion_params:
+            temperature: 0.7
+          mode: chat
+          name: qwen2.5-32b-instruct
+          provider: tongyi
+        prompt_template:
+        - id: 136323b2-15cf-4a6e-a671-8263533cc64b
+          role: system
+          text: 你是一名翻译大师，根据我提供的提示词，将他翻译成FLUX大模型使用的英文提示词，如果本身就是英文，保持不变。只做翻译工作，不输出任何无关的话。
+        - id: e6078e5a-9911-4ca0-b25e-cda835b643ea
+          role: user
+          text: '{{#1736483335549.prompt#}} '
+        selected: false
+        title: LLM
+        type: llm
+        variables: []
+        vision:
+          enabled: false
+      height: 96
+      id: '1736487342182'
+      position:
+        x: 369.7761312163417
+        y: 282
+      positionAbsolute:
+        x: 369.7761312163417
+        y: 282
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 243
+    - data:
+        desc: ''
+        provider_id: comfyui
+        provider_name: comfyui
+        provider_type: builtin
+        selected: false
+        title: 工作流
+        tool_configurations:
+          image_ids: null
+          seed_id: null
+          workflow_json: '{   "6": {     "inputs": {       "model": [         "18",         0       ],       "conditioning":
+            [         "7",         0       ]     },     "class_type": "BasicGuider",     "_meta":
+            {       "title": "基本引导器"     }   },   "7": {     "inputs": {       "guidance":
+            3.5,       "conditioning": [         "46",         0       ]     },     "class_type":
+            "FluxGuidance",     "_meta": {       "title": "Flux引导"     }   },   "10":
+            {     "inputs": {       "noise_seed": 1005256572665870     },     "class_type":
+            "RandomNoise",     "_meta": {       "title": "随机噪声"     }   },   "11":
+            {     "inputs": {       "sampler_name": "euler"     },     "class_type":
+            "KSamplerSelect",     "_meta": {       "title": "K采样器选择"     }   },   "12":
+            {     "inputs": {       "scheduler": "normal",       "steps": 4,       "denoise":
+            1,       "model": [         "18",         0       ]     },     "class_type":
+            "BasicScheduler",     "_meta": {       "title": "基本调度器"     }   },   "14":
+            {     "inputs": {       "samples": [         "34",         0       ],       "vae":
+            [         "18",         2       ]     },     "class_type": "VAEDecode",     "_meta":
+            {       "title": "VAE解码"     }   },   "16": {     "inputs": {       "width":
+            768,       "height": 768,       "batch_size": 1     },     "class_type":
+            "EmptyLatentImage",     "_meta": {       "title": "空潜空间图像"     }   },   "18":
+            {     "inputs": {       "ckpt_name": "Flux1\\flux1-schnell-fp8.safetensors"     },     "class_type":
+            "CheckpointLoaderSimple",     "_meta": {       "title": "加载检查点"     }   },   "34":
+            {     "inputs": {       "noise": [         "10",         0       ],       "guider":
+            [         "6",         0       ],       "sampler": [         "11",         0       ],       "sigmas":
+            [         "12",         0       ],       "latent_image": [         "16",         0       ]     },     "class_type":
+            "SamplerCustomAdvanced",     "_meta": {       "title": "自定义采样器（高级）"     }   },   "46":
+            {     "inputs": {       "text": "{{positive_prompt}}",       "clip": [         "18",         1       ]     },     "class_type":
+            "CLIPTextEncode",     "_meta": {       "title": "CLIP文本编码器"     }   },   "47":
+            {     "inputs": {       "images": [         "14",         0       ]     },     "class_type":
+            "PreviewImage",     "_meta": {       "title": "预览图像"     }   } }'
+        tool_label: 工作流
+        tool_name: workflow
+        tool_parameters:
+          positive_prompt:
+            type: mixed
+            value: '{{#1736487342182.text#}}'
+        type: tool
+      height: 140
+      id: '1736492437563'
+      position:
+        x: 676.611022379076
+        y: 264.3681749551222
+      positionAbsolute:
+        x: 676.611022379076
+        y: 264.3681749551222
+      selected: false
+      sourcePosition: right
+      targetPosition: left
+      type: custom
+      width: 243
+    viewport:
+      x: -118.06904805763384
+      y: 66.41606632419837
+      zoom: 1
